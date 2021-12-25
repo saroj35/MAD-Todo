@@ -49,7 +49,7 @@ dependencies {
 
 
     //Room Components
-    implementation "android.arch.persistence.room:runtime:$lifecycle_version"
+
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
