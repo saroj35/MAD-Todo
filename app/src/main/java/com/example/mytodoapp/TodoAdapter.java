@@ -15,13 +15,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoHolder> {
     private List<Todo> todos = new ArrayList<>();
+    private OnItemClickListener listener;
 
     @NonNull
     @NotNull
     @Override
     public TodoHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.todo_item,parent,false);
+                .inflate(R.layout.todo_item, parent, false);
         return new TodoHolder(itemView);
     }
 
@@ -33,22 +34,24 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoHolder> {
         holder.textViewProirity.setText(String.valueOf(currentTodo.getPriority()));
 
     }
+
     //Display item in recycler view
     @Override
     public int getItemCount() {
         return todos.size();
     }
-    public void setTodos(List<Todo> todos){
+
+    public void setTodos(List<Todo> todos) {
         this.todos = todos;
         notifyDataSetChanged();
 
     }
 
-     public Todo getTodoAt (int position){
+    public Todo getTodoAt(int position) {
         return todos.get(position);
-     }
+    }
 
-    class TodoHolder extends RecyclerView.ViewHolder{
+    class TodoHolder extends RecyclerView.ViewHolder {
         private TextView textViewTitle;
         private TextView textViewDescription;
         private TextView textViewProirity;
@@ -58,6 +61,28 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoHolder> {
             textViewTitle = itemView.findViewById(R.id.text_view_title);
             textViewDescription = itemView.findViewById(R.id.text_view_description);
             textViewProirity = itemView.findViewById(R.id.text_view_priority);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+
+                    if (listener != null && position != RecyclerView.NO_POSITION) {
+                        listener.onItemClick(todos.get(position));
+                    }
+                }
+            });
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Todo todo);
+
+
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+
+
     }
 }

@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,6 +25,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     public static final int ADD_NOTE_REQUEST =1;
+    public static final int EDIT_NOTE_REQUEST =2;
     private ToDoViewModel toDoViewModel;
 
     @Override
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         buttonAddTodo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               Intent intent = new Intent(MainActivity.this,AddTodoActivity.class);
+               Intent intent = new Intent(MainActivity.this, AddEditTodoActivity.class);
                startActivityForResult(intent,ADD_NOTE_REQUEST);
             }
         });
@@ -70,6 +70,18 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Task Deleted Sucessfully", Toast.LENGTH_SHORT).show();
             }
         }).attachToRecyclerView(recyclerView);
+
+        adapter.setOnItemClickListener(new TodoAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Todo todo) {
+                Intent intent = new Intent(MainActivity.this, AddEditTodoActivity.class);
+                intent.putExtra(AddEditTodoActivity.EXTRA_ID,todo.getId());
+                intent.putExtra(AddEditTodoActivity.EXTRA_TITLE, todo.getTitle());
+                intent.putExtra(AddEditTodoActivity.EXTRA_DESCRIPTION, todo.getDescription());
+                intent.putExtra(AddEditTodoActivity.EXTRA_PRIORITY, todo.getPriority());
+                startActivityForResult(intent, EDIT_NOTE_REQUEST);
+            }
+        });
     }
 
     @Override
@@ -77,16 +89,34 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == ADD_NOTE_REQUEST && resultCode == RESULT_OK){
-            String title = data.getStringExtra(AddTodoActivity.EXTRA_TITLE);
-            String description = data.getStringExtra(AddTodoActivity.EXTRA_DESCRIPTION);
-            int priority = data.getIntExtra(AddTodoActivity.EXTRA_PRIORITY,1);
+            String title = data.getStringExtra(AddEditTodoActivity.EXTRA_TITLE);
+            String description = data.getStringExtra(AddEditTodoActivity.EXTRA_DESCRIPTION);
+            int priority = data.getIntExtra(AddEditTodoActivity.EXTRA_PRIORITY,1);
 
             Todo todo = new Todo(title, description, priority);
             toDoViewModel.insert(todo);
             Toast.makeText(this, "To do Added", Toast.LENGTH_SHORT).show();
 
 
-        } else{
+        } else if (requestCode == ADD_NOTE_REQUEST && resultCode == RESULT_OK){
+            int id = data.getIntExtra(AddEditTodoActivity.EXTRA_ID,-1);
+
+            if (id == -1){
+
+                Toast.makeText(this, "Todo Can't be Updated", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String title = data.getStringExtra(AddEditTodoActivity.EXTRA_TITLE);
+            String description = data.getStringExtra(AddEditTodoActivity.EXTRA_DESCRIPTION);
+            int priority = data.getIntExtra(AddEditTodoActivity.EXTRA_PRIORITY,1);
+
+            Todo todo = new Todo(title, description,priority);
+            todo.setId(id);
+            toDoViewModel.update(todo);
+
+            Toast.makeText(this, "Todo Updated", Toast.LENGTH_SHORT).show();
+
+        }else{
 
             Toast.makeText(this, "Todo Not Saved", Toast.LENGTH_SHORT).show();
 
