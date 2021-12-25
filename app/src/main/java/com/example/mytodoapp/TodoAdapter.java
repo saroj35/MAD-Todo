@@ -44,6 +44,10 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoHolder> {
 
     }
 
+     public Todo getTodoAt (int position){
+        return todos.get(position);
+     }
+
     class TodoHolder extends RecyclerView.ViewHolder{
         private TextView textViewTitle;
         private TextView textViewDescription;

@@ -1,19 +1,26 @@
 package com.example.mytodoapp;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -39,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-        TodoAdapter adapter = new TodoAdapter();
+       final TodoAdapter adapter = new TodoAdapter();
         recyclerView.setAdapter(adapter);
 
         toDoViewModel = ViewModelProviders.of(this).get(ToDoViewModel.class);
@@ -50,6 +57,19 @@ public class MainActivity extends AppCompatActivity {
                 adapter.setTodos(todos);
             }
         });
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull @NotNull RecyclerView recyclerView, @NonNull @NotNull RecyclerView.ViewHolder viewHolder, @NonNull @NotNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull @NotNull RecyclerView.ViewHolder viewHolder, int direction) {
+                toDoViewModel.delete(adapter.getTodoAt(viewHolder.getAdapterPosition()));
+                Toast.makeText(MainActivity.this, "Task Deleted Sucessfully", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
     }
 
     @Override
@@ -58,8 +78,39 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == ADD_NOTE_REQUEST && resultCode == RESULT_OK){
             String title = data.getStringExtra(AddTodoActivity.EXTRA_TITLE);
-             String description = data.getStringExtra(AddTodoActivity.EXTRA_DESCRIPTION);
+            String description = data.getStringExtra(AddTodoActivity.EXTRA_DESCRIPTION);
+            int priority = data.getIntExtra(AddTodoActivity.EXTRA_PRIORITY,1);
+
+            Todo todo = new Todo(title, description, priority);
+            toDoViewModel.insert(todo);
+            Toast.makeText(this, "To do Added", Toast.LENGTH_SHORT).show();
+
+
+        } else{
+
+            Toast.makeText(this, "Todo Not Saved", Toast.LENGTH_SHORT).show();
 
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater =  getMenuInflater();
+        menuInflater.inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.delete_all_todos:
+                toDoViewModel.deleteAllTodos();
+                Toast.makeText(this, "All todo deleted", Toast.LENGTH_SHORT).show();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
     }
 }
