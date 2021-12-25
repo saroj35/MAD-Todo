@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-       final TodoAdapter adapter = new TodoAdapter();
+        TodoAdapter adapter = new TodoAdapter();
         recyclerView.setAdapter(adapter);
 
         toDoViewModel = ViewModelProviders.of(this).get(ToDoViewModel.class);
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<Todo> todos) {
                 //Update Recycler View
-                adapter.setTodos(todos);
+                adapter.submitList(todos);
             }
         });
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "To do Added", Toast.LENGTH_SHORT).show();
 
 
-        } else if (requestCode == ADD_NOTE_REQUEST && resultCode == RESULT_OK){
+        } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == RESULT_OK){
             int id = data.getIntExtra(AddEditTodoActivity.EXTRA_ID,-1);
 
             if (id == -1){

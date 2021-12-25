@@ -39,7 +39,7 @@ public class AddEditTodoActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         if(intent.hasExtra(EXTRA_ID)){
-            setTitle("EDIT NOTE");
+            setTitle("EDIT TODO");
             editTextTitle.setText(intent.getStringExtra(EXTRA_TITLE));
             editTextDescription.setText(intent.getStringExtra(EXTRA_DESCRIPTION));
             numberPickerPriority.setValue(intent.getIntExtra(EXTRA_PRIORITY,1));
@@ -65,7 +65,7 @@ public class AddEditTodoActivity extends AppCompatActivity {
 
         int id = getIntent().getIntExtra(EXTRA_ID,-1);
         if(id != -1){
-            data.putExtra(EXTRA_ID, id);
+             data.putExtra(EXTRA_ID, id);
         }
 
         setResult(RESULT_OK, data);

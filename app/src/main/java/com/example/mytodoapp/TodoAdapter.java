@@ -11,11 +11,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoHolder> {
-    private List<Todo> todos = new ArrayList<>();
+public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.TodoHolder> {
     private OnItemClickListener listener;
+
+    public TodoAdapter() {
+        super(DIFF_CALLBACK);
+    }
+    private static final DiffUtil.ItemCallback<Todo> DIFF_CALLBACK = new DiffUtil.ItemCallback<Todo>() {
+        @Override
+        public boolean areItemsTheSame( Todo oldItem, Todo newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(Todo oldItem,  Todo newItem) {
+            return oldItem.getTitle().equals(newItem.getTitle()) &&
+                    oldItem.getDescription().equals(newItem.getDescription()) &&
+                    oldItem.getPriority() == newItem.getPriority();
+        }
+    };
 
     @NonNull
     @NotNull
@@ -28,27 +46,15 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull TodoHolder holder, int position) {
-        Todo currentTodo = todos.get(position);
+        Todo currentTodo = getItem(position);
         holder.textViewTitle.setText(currentTodo.getTitle());
         holder.textViewDescription.setText(currentTodo.getDescription());
         holder.textViewProirity.setText(String.valueOf(currentTodo.getPriority()));
 
     }
 
-    //Display item in recycler view
-    @Override
-    public int getItemCount() {
-        return todos.size();
-    }
-
-    public void setTodos(List<Todo> todos) {
-        this.todos = todos;
-        notifyDataSetChanged();
-
-    }
-
     public Todo getTodoAt(int position) {
-        return todos.get(position);
+        return getItem(position);
     }
 
     class TodoHolder extends RecyclerView.ViewHolder {
@@ -67,7 +73,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoHolder> {
                     int position = getAdapterPosition();
 
                     if (listener != null && position != RecyclerView.NO_POSITION) {
-                        listener.onItemClick(todos.get(position));
+                        listener.onItemClick(getItem(position));
                     }
                 }
             });
